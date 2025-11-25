@@ -21,10 +21,8 @@
 void ILI9341_Init(void);
 void ILI9341_FillScreen(uint16_t color);
 void ILI9341_DrawPixel(uint16_t x, uint16_t y, uint16_t color);
-void ILI9341_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t *data);
+void ILI9341_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t* data);
 void ILI9341_SetAddrWindow(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
-// Helper macro: convert 8-bit RGB to 16-bit RGB565
-#define ILI9341_COLOR565(r,g,b) (((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3))
 
 #endif

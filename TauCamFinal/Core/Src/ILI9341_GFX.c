@@ -18,6 +18,12 @@ extern SPI_HandleTypeDef hspi1; // change to hspi2 if needed
     HAL_SPI_Transmit(&hspi1, &data, 1, HAL_MAX_DELAY);
     HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);   // Deselect LCD
 }
+void ILI9341_WriteDataMultiple(uint16_t * datas, uint32_t dataNums) {
+     while (dataNums--)
+     {
+         ILI9341_WriteData(*datas++);
+     }
+ }
 
 // --- Core functions ---
 void ILI9341_Init(void) {
@@ -65,16 +71,11 @@ void ILI9341_FillScreen(uint16_t color) {
     }
 }
 
-void ILI9341_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t *data) {
-    if ((x >= ILI9341_WIDTH) || (y >= ILI9341_HEIGHT)) return;
-    if ((x + w - 1) >= ILI9341_WIDTH) return;
-    if ((y + h - 1) >= ILI9341_HEIGHT) return;
+void ILI9341_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t* data) {
+    if((x >= ILI9341_WIDTH) || (y >= ILI9341_HEIGHT)) return;
+    if((x + w - 1) >= ILI9341_WIDTH) return;
+    if((y + h - 1) >= ILI9341_HEIGHT) return;
 
-    ILI9341_SetAddrWindow(x, y, w, h);
-
-    for (uint32_t i = 0; i < w * h; i++) {
-        uint16_t color = data[i];
-        ILI9341_WriteData(color >> 8);
-        ILI9341_WriteData(color & 0xFF);
-    }
+    ILI9341_SetAddrWindow(x, y, x+w-1, y+h-1);
+    ILI9341_WriteDataMultiple((uint16_t*)data, w*h);
 }

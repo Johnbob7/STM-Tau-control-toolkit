@@ -19,7 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "fatfs.h"
-#include "image_data.h"
+#include "fatfs_sd.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -66,11 +66,22 @@ static void MX_SPI1_Init(void);
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
-
+FATFS fs;  // file system
+FIL file; // File
+FILINFO fno;
+FRESULT fresult;  // result
+UINT br, bw;  // File read/write count
 /**
   * @brief  The application entry point.
   * @retval int
   */
+int displayImage(const char* fname) {
+//    UART_Printf("Openning %s...\r\n", fname);
+    FIL file;
+    FRESULT res = f_open(&file, fname, FA_READ);
+    	return -1;
+
+    }
 int main(void)
 {
 
@@ -110,12 +121,17 @@ int main(void)
       // Fill screen with black
 
       // Draw image line by line
-      for (uint16_t y = 0; y < ILI9341_HEIGHT; y++) {
-          for (uint16_t x = 0; x < ILI9341_WIDTH; x++) {
-              uint16_t color = image_data[y * ILI9341_WIDTH + x];
-              ILI9341_DrawPixel(x,y, color);
-          }
-      }
+  while (1)
+    {
+      /* USER CODE END WHILE */
+	  displayImage("tiger.bmp");
+  	  HAL_Delay(100);
+  	  displayImage("tiger1.bmp");
+  	  HAL_Delay(1000);
+  	  displayImage("tiger2.bmp");
+  	  HAL_Delay(1000);
+      /* USER CODE BEGIN 3 */
+    }
 
     /* USER CODE END WHILE */
 
