@@ -26,6 +26,9 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
+/* Ensure core HAL definitions (HAL_StatusTypeDef, HAL_LockTypeDef, etc.) are
+   available even if the configuration header is pre-included or guarded out. */
+#include "stm32l1xx_hal_def.h"
 #include "stm32l1xx_hal_conf.h"
 
 /** @addtogroup STM32L1xx_HAL_Driver
