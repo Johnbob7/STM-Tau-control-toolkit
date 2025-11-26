@@ -17,12 +17,12 @@
   */
 /* USER CODE END Header */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32L1xx_HAL_CONF_H
-#define __STM32L1xx_HAL_CONF_H
-
 #ifdef __cplusplus
  extern "C" {
 #endif
+
+/* Core HAL definitions */
+#include "stm32l1xx_hal_def.h"
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
@@ -315,4 +315,5 @@
 #endif
 
 #endif /* __STM32L1xx_HAL_CONF_H */
+
 
