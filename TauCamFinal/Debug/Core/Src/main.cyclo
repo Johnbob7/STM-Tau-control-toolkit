@@ -1,4 +1,0 @@
-../Core/Src/main.c:68:6:GenerateFakeData	2
-../Core/Src/main.c:89:5:main	1
-../Core/Src/main.c:142:6:SystemClock_Config	3
-../Core/Src/main.c:189:6:Error_Handler	1
