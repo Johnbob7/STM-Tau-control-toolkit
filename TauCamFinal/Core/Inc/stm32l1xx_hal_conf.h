@@ -24,9 +24,6 @@
  extern "C" {
 #endif
 
-/* Core HAL definitions */
-#include "stm32l1xx_hal_def.h"
-
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 
@@ -318,5 +315,4 @@
 #endif
 
 #endif /* __STM32L1xx_HAL_CONF_H */
-
 

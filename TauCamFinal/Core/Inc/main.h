@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32l1xx_hal_conf.h"
+#include "stm32l1xx_hal.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -48,14 +48,7 @@ extern "C" {
 /* USER CODE BEGIN EM */
 
 /* USER CODE END EM */
-#define LCD_DC_Pin GPIO_PIN_7
-#define LCD_DC_GPIO_Port GPIOB
 
-#define LCD_CS_Pin GPIO_PIN_6
-#define LCD_CS_GPIO_Port GPIOB
-
-#define LCD_RST_Pin GPIO_PIN_8
-#define LCD_RST_GPIO_Port GPIOB
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
@@ -76,6 +69,15 @@ void Error_Handler(void);
 #define TCK_GPIO_Port GPIOA
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
+// Example definitions in main.h
+#define LCD_DC_GPIO_Port GPIOB
+#define LCD_DC_Pin GPIO_PIN_7
+
+#define LCD_CS_GPIO_Port GPIOB
+#define LCD_CS_Pin GPIO_PIN_6
+
+#define LCD_RST_GPIO_Port GPIOB
+#define LCD_RST_Pin GPIO_PIN_8
 
 /* USER CODE BEGIN Private defines */
 
