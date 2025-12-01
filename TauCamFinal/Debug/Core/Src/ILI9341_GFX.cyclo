@@ -1,0 +1,8 @@
+../Core/Src/ILI9341_GFX.c:8:7:ILI9341_WriteCommand	1
+../Core/Src/ILI9341_GFX.c:15:7:ILI9341_WriteData	1
+../Core/Src/ILI9341_GFX.c:21:6:ILI9341_WriteDataMultiple	2
+../Core/Src/ILI9341_GFX.c:29:6:ILI9341_Init	1
+../Core/Src/ILI9341_GFX.c:43:6:ILI9341_SetAddrWindow	1
+../Core/Src/ILI9341_GFX.c:59:6:ILI9341_DrawPixel	3
+../Core/Src/ILI9341_GFX.c:66:6:ILI9341_FillScreen	2
+../Core/Src/ILI9341_GFX.c:74:6:ILI9341_DrawImage	5
