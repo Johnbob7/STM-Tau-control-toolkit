@@ -66,25 +66,7 @@ void SystemClock_Config(void);
   * @retval int
   */
 void GenerateFakeData(void) {
-    uint16_t x0 = 0, y0 = 0;  // Start at the top-left corner
-    uint16_t x1 = ILI9341_WIDTH - 1, y1 = 0;  // Start drawing to the top-right corner
-    uint16_t color = ILI9341_RED;  // Initial color
-
-    while (1) {
-        // Draw a line from (x0, y0) to (x1, y1)
-        ILI9341_DrawLine(x0, y0, x1, y1, color);
-
-        // Move the start and end points down by 1 pixel
-        y0++;
-        y1++;
-
-        // If the screen is filled, reset and clear the screen
-        if (y0 >= ILI9341_HEIGHT) {
-            y0 = 0;
-            y1 = 0;
-            color += 0x0400;
-        }
-    }
+    ILI9341_FillScreen(ILI9341_BLUE);
 }
 int main(void)
 {
@@ -125,11 +107,6 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  ILI9341_FillScreen(0x001F);
-	  ILI9341_FillScreen(0x0000);
-	  ILI9341_FillScreen(0xFFFF);
-	  ILI9341_FillScreen(0x001F);
-
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
