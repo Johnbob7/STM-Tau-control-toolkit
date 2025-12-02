@@ -64,8 +64,8 @@ all: main-build
 main-build: TauCamFinal.elf secondary-outputs
 
 # Tool invocations
-TauCamFinal.elf TauCamFinal.map: $(OBJS) $(USER_OBJS) /Users/pmartin/Documents/GitHub/TauFinal2/STM-Tau-control-toolkit/TauCamFinal/STM32L152RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "TauCamFinal.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"/Users/pmartin/Documents/GitHub/TauFinal2/STM-Tau-control-toolkit/TauCamFinal/STM32L152RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="TauCamFinal.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+TauCamFinal.elf TauCamFinal.map: $(OBJS) $(USER_OBJS) C:\Users\john\OneDrive\Documents\GitHub\STM-Tau-control-toolkit\TauCamFinal\STM32L152RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "TauCamFinal.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\john\OneDrive\Documents\GitHub\STM-Tau-control-toolkit\TauCamFinal\STM32L152RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="TauCamFinal.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

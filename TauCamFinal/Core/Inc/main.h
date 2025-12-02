@@ -69,16 +69,13 @@ void Error_Handler(void);
 #define TCK_GPIO_Port GPIOA
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
-// Example definitions in main.h
-#define LCD_DC_GPIO_Port GPIOB
-#define LCD_DC_Pin GPIO_PIN_7
-
+// LCD control pins (match Blackjack hardware mapping)
 #define LCD_CS_GPIO_Port GPIOB
 #define LCD_CS_Pin GPIO_PIN_6
-
-#define LCD_RST_GPIO_Port GPIOB
-#define LCD_RST_Pin GPIO_PIN_8
-
+#define LCD_DC_GPIO_Port GPIOC
+#define LCD_DC_Pin GPIO_PIN_7
+#define LCD_RST_GPIO_Port GPIOA
+#define LCD_RST_Pin GPIO_PIN_10
 
 
 /* USER CODE BEGIN Private defines */

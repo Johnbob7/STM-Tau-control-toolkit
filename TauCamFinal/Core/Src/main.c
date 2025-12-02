@@ -22,7 +22,7 @@
 #include "spi.h"
 #include "usart.h"
 #include "gpio.h"
-#include "ili9341.h"
+#include "ILI9341_hal.h"
 #include "math.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -45,6 +45,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+ILI9341_Handle display;
 
 /* USER CODE BEGIN PV */
 
@@ -52,6 +53,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+static void StartupScreen(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -61,26 +63,6 @@ void SystemClock_Config(void);
 
 /* USER CODE END 0 */
 
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
-void GenerateFakeData(void) {
-	ILI9341_FillScreen(ILI9341_RED); // Red
-	    HAL_Delay(1000);
-
-	    ILI9341_FillScreen(ILI9341_BLUE); // Green
-	    HAL_Delay(1000);
-
-	    ILI9341_FillScreen(ILI9341_RED); // Blue
-	    HAL_Delay(1000);
-
-	    // Draw a few pixels
-	    ILI9341_DrawPixel(10, 10, ILI9341_BLACK); // White
-	    ILI9341_DrawPixel(20, 20, ILI9341_RED); // White
-	    ILI9341_DrawPixel(30, 30, ILI9341_BLUE); // White
-	    HAL_Delay(1000);
-}
 int main(void)
 {
 
@@ -110,17 +92,36 @@ int main(void)
   MX_USART2_UART_Init();
   MX_I2C1_Init();
   MX_SPI1_Init();
-  ILI9341_Init();
+  ILI9341_Init(&display, &hspi1,
+		  GPIOB, GPIO_PIN_6,
+		  GPIOC, GPIO_PIN_7,
+		  GPIOA, GPIO_PIN_10);
   /* USER CODE BEGIN 2 */
-  GenerateFakeData();
+  StartupScreen();
+  const uint16_t colorCycle[] = {
+		  ILI9341_BLACK,
+		  ILI9341_BLUE,
+		  ILI9341_RED,
+		  ILI9341_GREEN,
+		  ILI9341_CYAN,
+		  ILI9341_MAGENTA,
+		  ILI9341_YELLOW,
+		  ILI9341_WHITE
+  };
+  const uint32_t colorCount = sizeof(colorCycle) / sizeof(colorCycle[0]);
+  uint32_t colorIndex = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  ILI9341_FillScreen(ILI9341_BLUE);
-	  GenerateFakeData();
+	  ILI9341_FillScreen(&display, colorCycle[colorIndex]);
+	  HAL_Delay(1000);
+	  colorIndex++;
+	  if (colorIndex >= colorCount) {
+		  colorIndex = 0;
+	  }
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
   }
@@ -171,7 +172,10 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+static void StartupScreen(void)
+{
+	ILI9341_FillScreen(&display, ILI9341_BLACK);
+}
 /* USER CODE END 4 */
 
 /**
