@@ -10,27 +10,51 @@
 extern SPI_HandleTypeDef hspi1; // change to hspi2 if needed
 
 // --- Low-level helpers ---
- void ILI9341_WriteCommand(uint16_t cmd) {
+void ILI9341_WriteCommand(uint8_t cmd) {
     HAL_GPIO_WritePin(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_RESET); // Command mode
     HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET); // Select LCD
     HAL_SPI_Transmit(&hspi1, &cmd, 1, HAL_MAX_DELAY);
     HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);   // Deselect LCD
 }
 
- void ILI9341_WriteData(uint16_t data) {
+void ILI9341_WriteData(uint8_t data) {
     HAL_GPIO_WritePin(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);   // Data mode
     HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET); // Select LCD
     HAL_SPI_Transmit(&hspi1, &data, 1, HAL_MAX_DELAY);
     HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);   // Deselect LCD
 }
- void ILI9341_WriteDataMultiple(uint16_t *datas, uint32_t dataNums) {
-     while (dataNums--) {
-    	 uint16_t data = *datas++; // Convert 16-bit data to 8-bit if needed
-         HAL_GPIO_WritePin(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);   // Data mode
-         HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET); // Select LCD
-         HAL_SPI_Transmit(&hspi1, &data, 1, HAL_MAX_DELAY);
-         HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);   // Deselect LCD
+
+void ILI9341_WriteDataMultiple(const uint8_t *datas, uint32_t dataNums) {
+     HAL_GPIO_WritePin(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);   // Data mode
+     HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET); // Select LCD
+     HAL_SPI_Transmit(&hspi1, (uint8_t *)datas, dataNums, HAL_MAX_DELAY);
+     HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);   // Deselect LCD
+ }
+
+static void ILI9341_WriteColorMultiple(const uint16_t *colors, uint32_t count) {
+     HAL_GPIO_WritePin(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);   // Data mode
+     HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET); // Select LCD
+
+     while (count--) {
+         uint16_t color = *colors++;
+         uint8_t bytes[2] = { (uint8_t)(color >> 8), (uint8_t)(color & 0xFF) };
+         HAL_SPI_Transmit(&hspi1, bytes, 2, HAL_MAX_DELAY);
      }
+
+     HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);   // Deselect LCD
+ }
+
+static void ILI9341_WriteColorRepeat(uint16_t color, uint32_t count) {
+     uint8_t bytes[2] = { (uint8_t)(color >> 8), (uint8_t)(color & 0xFF) };
+
+     HAL_GPIO_WritePin(LCD_DC_GPIO_Port, LCD_DC_Pin, GPIO_PIN_SET);   // Data mode
+     HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_RESET); // Select LCD
+
+     while (count--) {
+         HAL_SPI_Transmit(&hspi1, bytes, 2, HAL_MAX_DELAY);
+     }
+
+     HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, GPIO_PIN_SET);   // Deselect LCD
  }
 void ILI9341_Reset(void) {
     HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, GPIO_PIN_RESET);
@@ -135,7 +159,7 @@ void ILI9341_Init() {
     ILI9341_WriteCommand(0xB1);
     {
         uint8_t data[] = { 0x00, 0x18 };
-        ILI9341_WriteDataMultiple(data, 1);
+        ILI9341_WriteDataMultiple(data, 2);
     }
 
     // DISPLAY FUNCTION CONTROL
@@ -208,8 +232,8 @@ void ILI9341_SetAddressWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1
 void ILI9341_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
     if ((x >= ILI9341_WIDTH) || (y >= ILI9341_HEIGHT)) return;
     ILI9341_SetAddressWindow(x, y, 1, 1);
-    ILI9341_WriteData(color >> 8);
-    ILI9341_WriteData(color & 0xFF);
+    uint16_t pixel = color;
+    ILI9341_WriteColorMultiple(&pixel, 1);
 }
 
 void ILI9341_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color) {
@@ -219,11 +243,7 @@ void ILI9341_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint1
     if((y + h - 1) >= ILI9341_HEIGHT) h = ILI9341_HEIGHT - y;
 
     ILI9341_SetAddressWindow(x, y, x+w-1, y+h-1);
-    for(y = h; y > 0; y--) {
-        for(x = w; x > 0; x--) {
-            ILI9341_WriteData(color);
-        }
-    }
+    ILI9341_WriteColorRepeat(color, (uint32_t)w * h);
 }
 
 void ILI9341_FillScreen(uint16_t color) {
@@ -236,7 +256,7 @@ void ILI9341_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uin
     if((y + h - 1) >= ILI9341_HEIGHT) return;
 
     ILI9341_SetAddressWindow(x, y, x+w-1, y+h-1);
-    ILI9341_WriteDataMultiple((uint16_t*)data, w*h);
+    ILI9341_WriteColorMultiple(data, w*h);
 }
 void ILI9341_DrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
 	uint16_t dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
