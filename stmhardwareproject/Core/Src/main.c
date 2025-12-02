@@ -21,6 +21,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
 
 /* USER CODE END Includes */
 
@@ -53,11 +56,133 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
+static int8_t hex_char_to_nibble(uint8_t ch);
+static uint8_t parse_function_code(void);
+static uint16_t crc16_ccitt(const uint8_t *data, size_t length);
+static void build_tau_get_packet(uint8_t function, uint8_t *buffer, size_t *packet_len);
+static void handle_tau_transaction(uint8_t function_code);
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+#define TAU_PROCESS_CODE 0x6D
+
+static int8_t hex_char_to_nibble(uint8_t ch)
+{
+  if (ch >= '0' && ch <= '9')
+  {
+    return (int8_t)(ch - '0');
+  }
+  if (ch >= 'A' && ch <= 'F')
+  {
+    return (int8_t)(10 + (ch - 'A'));
+  }
+  if (ch >= 'a' && ch <= 'f')
+  {
+    return (int8_t)(10 + (ch - 'a'));
+  }
+  return -1;
+}
+
+static uint8_t parse_function_code(void)
+{
+  uint8_t input_buffer[2] = {0};
+  uint8_t collected = 0;
+  uint8_t received_char = 0;
+
+  while (1)
+  {
+    if (HAL_UART_Receive(&huart2, &received_char, 1, HAL_MAX_DELAY) != HAL_OK)
+    {
+      continue;
+    }
+
+    if (received_char == '\r' || received_char == '\n')
+    {
+      if (collected == 2)
+      {
+        int8_t high = hex_char_to_nibble(input_buffer[0]);
+        int8_t low = hex_char_to_nibble(input_buffer[1]);
+        if (high >= 0 && low >= 0)
+        {
+          return (uint8_t)((high << 4) | low);
+        }
+      }
+      collected = 0;
+      continue;
+    }
+
+    if (!isxdigit(received_char))
+    {
+      collected = 0;
+      continue;
+    }
+
+    if (collected < sizeof(input_buffer))
+    {
+      input_buffer[collected++] = received_char;
+    }
+  }
+}
+
+static uint16_t crc16_ccitt(const uint8_t *data, size_t length)
+{
+  uint16_t crc = 0x0000;
+  for (size_t i = 0; i < length; i++)
+  {
+    crc ^= (uint16_t)data[i] << 8;
+    for (uint8_t j = 0; j < 8; j++)
+    {
+      if (crc & 0x8000)
+      {
+        crc = (crc << 1) ^ 0x1021;
+      }
+      else
+      {
+        crc <<= 1;
+      }
+    }
+  }
+  return crc;
+}
+
+static void build_tau_get_packet(uint8_t function, uint8_t *buffer, size_t *packet_len)
+{
+  const uint16_t byte_count = 0;
+  buffer[0] = TAU_PROCESS_CODE;
+  buffer[1] = 0x00;
+  buffer[2] = (uint8_t)((byte_count >> 8) & 0xFF);
+  buffer[3] = (uint8_t)(byte_count & 0xFF);
+  buffer[4] = function;
+  buffer[5] = 0x00; // GET command indicator
+
+  uint16_t crc1 = crc16_ccitt(buffer, 6);
+  buffer[6] = (uint8_t)((crc1 >> 8) & 0xFF);
+  buffer[7] = (uint8_t)(crc1 & 0xFF);
+
+  uint16_t crc2 = crc16_ccitt(buffer, 8);
+  buffer[8] = (uint8_t)((crc2 >> 8) & 0xFF);
+  buffer[9] = (uint8_t)(crc2 & 0xFF);
+
+  *packet_len = 10;
+}
+
+static void handle_tau_transaction(uint8_t function_code)
+{
+  uint8_t tx_packet[10];
+  size_t tx_len = 0;
+  build_tau_get_packet(function_code, tx_packet, &tx_len);
+  HAL_UART_Transmit(&huart1, tx_packet, tx_len, HAL_MAX_DELAY);
+
+  uint8_t rx_packet[10] = {0};
+  HAL_UART_Receive(&huart1, rx_packet, sizeof(rx_packet), HAL_MAX_DELAY);
+
+  char response[32];
+  snprintf(response, sizeof(response), "Status: %02X\r\n", rx_packet[1]);
+  HAL_UART_Transmit(&huart2, (uint8_t *)response, strlen(response), HAL_MAX_DELAY);
+}
 
 /* USER CODE END 0 */
 
@@ -94,6 +219,8 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  const char *prompt = "Enter function code (2 hex digits): \r\n";
+  HAL_UART_Transmit(&huart2, (uint8_t *)prompt, strlen(prompt), HAL_MAX_DELAY);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -103,6 +230,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    uint8_t function_code = parse_function_code();
+    handle_tau_transaction(function_code);
   }
   /* USER CODE END 3 */
 }
