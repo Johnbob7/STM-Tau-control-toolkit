@@ -79,6 +79,8 @@ void Error_Handler(void);
 #define LCD_RST_GPIO_Port GPIOB
 #define LCD_RST_Pin GPIO_PIN_8
 
+
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

@@ -66,7 +66,20 @@ void SystemClock_Config(void);
   * @retval int
   */
 void GenerateFakeData(void) {
-    ILI9341_FillScreen(ILI9341_BLUE);
+	ILI9341_FillScreen(ILI9341_RED); // Red
+	    HAL_Delay(1000);
+
+	    ILI9341_FillScreen(ILI9341_BLUE); // Green
+	    HAL_Delay(1000);
+
+	    ILI9341_FillScreen(ILI9341_RED); // Blue
+	    HAL_Delay(1000);
+
+	    // Draw a few pixels
+	    ILI9341_DrawPixel(10, 10, ILI9341_BLACK); // White
+	    ILI9341_DrawPixel(20, 20, ILI9341_RED); // White
+	    ILI9341_DrawPixel(30, 30, ILI9341_BLUE); // White
+	    HAL_Delay(1000);
 }
 int main(void)
 {
@@ -106,6 +119,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  ILI9341_FillScreen(ILI9341_BLUE);
+	  GenerateFakeData();
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
   }

@@ -19,13 +19,14 @@
 #define ILI9341_WHITE   0xFFFF
 
 // Public functions
+void ILI9341_Reset(void);
 void ILI9341_Init(void);
 void ILI9341_FillScreen(uint16_t color);
 void ILI9341_DrawPixel(uint16_t x, uint16_t y, uint16_t color);
 void ILI9341_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t* data);
 void ILI9341_SetAddrWindow(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
-
+void ILI9341_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
 void ILI9341_DrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
-
+void ILI9341_WriteDataMultiple(uint16_t *datas, uint32_t dataNums);
 
 #endif
