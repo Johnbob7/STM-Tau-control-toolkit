@@ -93,7 +93,7 @@ void ILI9341_Init() {
     }
 
     // DRIVER TIMING CONTROL B
-    ILI9341_WriteCommand(0x00EA);
+    ILI9341_WriteCommand(0xEA);
     {
         uint8_t data[] = { 0x00, 0x00 };
         ILI9341_WriteDataMultiple(data, 2);
@@ -231,7 +231,7 @@ void ILI9341_SetAddressWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1
 
 void ILI9341_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
     if ((x >= ILI9341_WIDTH) || (y >= ILI9341_HEIGHT)) return;
-    ILI9341_SetAddressWindow(x, y, 1, 1);
+    ILI9341_SetAddressWindow(x, y, x, y);
     uint16_t pixel = color;
     ILI9341_WriteColorMultiple(&pixel, 1);
 }
