@@ -26,6 +26,7 @@
 #include "math.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "tiger_rgb565.h"
 
 /* USER CODE END Includes */
 
@@ -54,6 +55,7 @@ ILI9341_Handle display;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void StartupScreen(void);
+static void DrawTiger(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -93,35 +95,19 @@ int main(void)
   MX_I2C1_Init();
   MX_SPI1_Init();
   ILI9341_Init(&display, &hspi1,
-		  GPIOB, GPIO_PIN_6,
-		  GPIOC, GPIO_PIN_7,
-		  GPIOA, GPIO_PIN_10);
+                  GPIOB, GPIO_PIN_6,
+                  GPIOC, GPIO_PIN_7,
+                  GPIOA, GPIO_PIN_10);
   /* USER CODE BEGIN 2 */
   StartupScreen();
-  const uint16_t colorCycle[] = {
-		  ILI9341_BLACK,
-		  ILI9341_BLUE,
-		  ILI9341_RED,
-		  ILI9341_GREEN,
-		  ILI9341_CYAN,
-		  ILI9341_MAGENTA,
-		  ILI9341_YELLOW,
-		  ILI9341_WHITE
-  };
-  const uint32_t colorCount = sizeof(colorCycle) / sizeof(colorCycle[0]);
-  uint32_t colorIndex = 0;
+  DrawTiger();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  ILI9341_FillScreen(&display, colorCycle[colorIndex]);
-	  HAL_Delay(1000);
-	  colorIndex++;
-	  if (colorIndex >= colorCount) {
-		  colorIndex = 0;
-	  }
+          HAL_Delay(1000);
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
   }
@@ -174,7 +160,12 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 static void StartupScreen(void)
 {
-	ILI9341_FillScreen(&display, ILI9341_BLACK);
+        ILI9341_FillScreen(&display, ILI9341_BLACK);
+}
+
+static void DrawTiger(void)
+{
+        ILI9341_DrawImage(&display, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT, tiger_rgb565);
 }
 /* USER CODE END 4 */
 

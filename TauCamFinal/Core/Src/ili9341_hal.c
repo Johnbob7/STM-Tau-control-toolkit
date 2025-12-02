@@ -339,3 +339,26 @@ void ILI9341_DrawLine(ILI9341_Handle *handle, uint16_t x0, uint16_t y0,
         }
     }
 }
+
+void ILI9341_DrawImage(ILI9341_Handle *handle, uint16_t x, uint16_t y,
+                       uint16_t w, uint16_t h, const uint16_t *data) {
+    if (x >= handle->width || y >= handle->height) {
+        return;
+    }
+    if (x + w > handle->width) {
+        w = handle->width - x;
+    }
+    if (y + h > handle->height) {
+        h = handle->height - y;
+    }
+
+    ILI9341_StartWrite(handle);
+    ILI9341_SetAddrWindow(handle, x, y, w, h);
+
+    uint32_t totalPixels = (uint32_t)w * h;
+    for (uint32_t i = 0; i < totalPixels; i++) {
+        writeData16(handle, data[i]);
+    }
+
+    ILI9341_EndWrite(handle);
+}
