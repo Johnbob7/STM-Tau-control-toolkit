@@ -8,7 +8,7 @@
 #ifndef RS232_DRIVER_H_
 #define RS232_DRIVER_H_
 
-#include "stm32f1xx_hal.h"
+#include "stm32l1xx_hal.h"
 
 /**
  * @brief Initialize the RS232 communication via UART.

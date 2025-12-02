@@ -1,0 +1,3 @@
+../Core/Src/rs232_driver.c:16:6:RS232_Init	2
+../Core/Src/rs232_driver.c:43:19:RS232_Transmit	1
+../Core/Src/rs232_driver.c:57:19:RS232_Receive	1
