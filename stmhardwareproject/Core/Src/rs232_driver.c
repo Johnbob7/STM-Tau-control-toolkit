@@ -16,7 +16,7 @@
 void RS232_Init(UART_HandleTypeDef *huart)
 {
     huart->Instance = USART1;  // Change USART1 to the correct USART instance
-    huart->Init.BaudRate = 9600;  // Set the desired baud rate
+    huart->Init.BaudRate = 57600;  // Set the desired baud rate
     huart->Init.WordLength = UART_WORDLENGTH_8B;
     huart->Init.StopBits = UART_STOPBITS_1;
     huart->Init.Parity = UART_PARITY_NONE;
