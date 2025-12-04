@@ -1,3 +1,4 @@
+"./Core/Src/Adafruit_TSC2007.o"
 "./Core/Src/gpio.o"
 "./Core/Src/i2c.o"
 "./Core/Src/ili9341_hal.o"

@@ -26,7 +26,8 @@
 #include "math.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "tiger_rgb565.h"
+#include "test_rgb565.h"
+#include "Adafruit_TSC2007.h"
 
 /* USER CODE END Includes */
 
@@ -47,6 +48,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 ILI9341_Handle display;
+TSC2007_Handle touch;
 
 /* USER CODE BEGIN PV */
 
@@ -99,6 +101,7 @@ int main(void)
                   GPIOC, GPIO_PIN_7,
                   GPIOA, GPIO_PIN_10);
   /* USER CODE BEGIN 2 */
+  TSC2007_Init(&touch, &hi2c1, ILI9341_TFTWIDTH, ILI9341_TFTHEIGHT);
   StartupScreen();
   DrawTiger();
   /* USER CODE END 2 */
@@ -107,7 +110,13 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-          HAL_Delay(1000);
+
+	      if (TSC2007_IsTouched(&touch)) {
+	          DrawTiger();
+
+	          // basic debounce
+	          HAL_Delay(300);
+	      }
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
   }
@@ -163,9 +172,11 @@ static void StartupScreen(void)
         ILI9341_FillScreen(&display, ILI9341_BLACK);
 }
 
+
+
 static void DrawTiger(void)
 {
-        ILI9341_DrawImage(&display, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT, tiger_rgb565);
+        ILI9341_DrawImage(&display, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT, test_rgb565.h);
 }
 /* USER CODE END 4 */
 
