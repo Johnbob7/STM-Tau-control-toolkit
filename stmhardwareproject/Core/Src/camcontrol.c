@@ -116,6 +116,8 @@ void CamControl_Init(UART_HandleTypeDef *huart_tau, UART_HandleTypeDef *huart_db
 {
     s_huart_tau = huart_tau;
     s_huart_dbg = huart_dbg;
+
+    Tau_PrintHelp();
 }
 
 void Tau_SendSetFfcAuto(void)
@@ -134,16 +136,18 @@ void Tau_SendGetFfcMode(void)
                       200);
 }
 
-void Tau_ReadAndPrintReply(void)
+static HAL_StatusTypeDef Tau_ReadReply(uint8_t *rx_buf, uint16_t rx_expected)
 {
-    uint8_t rx_buf[32];
-    const uint16_t rx_expected = 12; // Example responses in Table B-5 are 12 bytes long
-
     if (HAL_UART_Receive(s_huart_tau, rx_buf, rx_expected, 200) != HAL_OK) {
         dbg_printf("Tau: no reply or UART error\r\n");
-        return;
+        return HAL_ERROR;
     }
 
+    return HAL_OK;
+}
+
+static void Tau_PrintReplyStatus(const uint8_t *rx_buf, uint16_t rx_expected)
+{
     uint8_t status = rx_buf[1];
 
     dbg_printf("Tau reply (raw):");
@@ -169,6 +173,172 @@ void Tau_ReadAndPrintReply(void)
     }
 }
 
+void Tau_ReadAndPrintReply(void)
+{
+    uint8_t rx_buf[32];
+    const uint16_t rx_expected = 12; // Example responses in Table B-5 are 12 bytes long
+
+    if (Tau_ReadReply(rx_buf, rx_expected) != HAL_OK) {
+        return;
+    }
+
+    Tau_PrintReplyStatus(rx_buf, rx_expected);
+}
+
+const char *Tau_LUT_NameFromId(uint16_t lut)
+{
+    switch (lut) {
+    case 0x0000: return "White Hot";
+    case 0x0001: return "Black Hot";
+    case 0x0002: return "Fusion";
+    case 0x0003: return "Rainbow";
+    case 0x0004: return "Globow";
+    case 0x0005: return "Ironbow1";
+    case 0x0006: return "Ironbow2";
+    case 0x0007: return "Sepia";
+    case 0x0008: return "Color1";
+    case 0x0009: return "Color2";
+    case 0x000A: return "Ice&Fire";
+    case 0x000B: return "Rain";
+    case 0x000C: return "Custom1";
+    default:     return "Unknown";
+    }
+}
+
+static void Tau_ReadAndPrintVideoLutReply(void)
+{
+    uint8_t rx_buf[32];
+    const uint16_t rx_expected = 12;
+
+    if (Tau_ReadReply(rx_buf, rx_expected) != HAL_OK) {
+        return;
+    }
+
+    Tau_PrintReplyStatus(rx_buf, rx_expected);
+
+    uint16_t lut_id = ((uint16_t)rx_buf[6] << 8) | rx_buf[7];
+    dbg_printf("Current LUT: 0x%04X (%s)\r\n", lut_id, Tau_LUT_NameFromId(lut_id));
+}
+
+static void Tau_SendCommand(const uint8_t *cmd, uint16_t len)
+{
+    HAL_UART_Transmit(s_huart_tau, (uint8_t *)cmd, len, 200);
+}
+
+void Tau_SetLUT_WhiteHot(void)
+{
+    dbg_printf("\r\n[CMD] Set LUT = White Hot (0x0000)\r\n");
+    Tau_SendCommand(TAU_CMD_SET_LUT_WHITE_HOT, sizeof(TAU_CMD_SET_LUT_WHITE_HOT));
+    Tau_ReadAndPrintReply();
+}
+
+void Tau_SetLUT_BlackHot(void)
+{
+    dbg_printf("\r\n[CMD] Set LUT = Black Hot (0x0001)\r\n");
+    Tau_SendCommand(TAU_CMD_SET_LUT_BLACK_HOT, sizeof(TAU_CMD_SET_LUT_BLACK_HOT));
+    Tau_ReadAndPrintReply();
+}
+
+void Tau_SetLUT_Fusion(void)
+{
+    dbg_printf("\r\n[CMD] Set LUT = Fusion (0x0002)\r\n");
+    Tau_SendCommand(TAU_CMD_SET_LUT_FUSION, sizeof(TAU_CMD_SET_LUT_FUSION));
+    Tau_ReadAndPrintReply();
+}
+
+void Tau_SetLUT_Rainbow(void)
+{
+    dbg_printf("\r\n[CMD] Set LUT = Rainbow (0x0003)\r\n");
+    Tau_SendCommand(TAU_CMD_SET_LUT_RAINBOW, sizeof(TAU_CMD_SET_LUT_RAINBOW));
+    Tau_ReadAndPrintReply();
+}
+
+void Tau_SetLUT_Globow(void)
+{
+    dbg_printf("\r\n[CMD] Set LUT = Globow (0x0004)\r\n");
+    Tau_SendCommand(TAU_CMD_SET_LUT_GLOBOW, sizeof(TAU_CMD_SET_LUT_GLOBOW));
+    Tau_ReadAndPrintReply();
+}
+
+void Tau_SetLUT_Ironbow1(void)
+{
+    dbg_printf("\r\n[CMD] Set LUT = Ironbow1 (0x0005)\r\n");
+    Tau_SendCommand(TAU_CMD_SET_LUT_IRONBOW1, sizeof(TAU_CMD_SET_LUT_IRONBOW1));
+    Tau_ReadAndPrintReply();
+}
+
+void Tau_SetLUT_Ironbow2(void)
+{
+    dbg_printf("\r\n[CMD] Set LUT = Ironbow2 (0x0006)\r\n");
+    Tau_SendCommand(TAU_CMD_SET_LUT_IRONBOW2, sizeof(TAU_CMD_SET_LUT_IRONBOW2));
+    Tau_ReadAndPrintReply();
+}
+
+void Tau_SetLUT_Sepia(void)
+{
+    dbg_printf("\r\n[CMD] Set LUT = Sepia (0x0007)\r\n");
+    Tau_SendCommand(TAU_CMD_SET_LUT_SEPIA, sizeof(TAU_CMD_SET_LUT_SEPIA));
+    Tau_ReadAndPrintReply();
+}
+
+void Tau_SetLUT_Color1(void)
+{
+    dbg_printf("\r\n[CMD] Set LUT = Color1 (0x0008)\r\n");
+    Tau_SendCommand(TAU_CMD_SET_LUT_COLOR1, sizeof(TAU_CMD_SET_LUT_COLOR1));
+    Tau_ReadAndPrintReply();
+}
+
+void Tau_SetLUT_Color2(void)
+{
+    dbg_printf("\r\n[CMD] Set LUT = Color2 (0x0009)\r\n");
+    Tau_SendCommand(TAU_CMD_SET_LUT_COLOR2, sizeof(TAU_CMD_SET_LUT_COLOR2));
+    Tau_ReadAndPrintReply();
+}
+
+void Tau_SetLUT_IceFire(void)
+{
+    dbg_printf("\r\n[CMD] Set LUT = Ice&Fire (0x000A)\r\n");
+    Tau_SendCommand(TAU_CMD_SET_LUT_ICE_FIRE, sizeof(TAU_CMD_SET_LUT_ICE_FIRE));
+    Tau_ReadAndPrintReply();
+}
+
+void Tau_SetLUT_Rain(void)
+{
+    dbg_printf("\r\n[CMD] Set LUT = Rain (0x000B)\r\n");
+    Tau_SendCommand(TAU_CMD_SET_LUT_RAIN, sizeof(TAU_CMD_SET_LUT_RAIN));
+    Tau_ReadAndPrintReply();
+}
+
+void Tau_SetLUT_Custom1(void)
+{
+    dbg_printf("\r\n[CMD] Set LUT = Custom1 (0x000C)\r\n");
+    Tau_SendCommand(TAU_CMD_SET_LUT_CUSTOM1, sizeof(TAU_CMD_SET_LUT_CUSTOM1));
+    Tau_ReadAndPrintReply();
+}
+
+void Tau_GetVideoLUT(void)
+{
+    dbg_printf("\r\n[CMD] Get VIDEO_LUT\r\n");
+    Tau_SendCommand(TAU_CMD_GET_VIDEO_LUT, sizeof(TAU_CMD_GET_VIDEO_LUT));
+    Tau_ReadAndPrintVideoLutReply();
+}
+
+void Tau_PrintHelp(void)
+{
+    dbg_printf("Tau console ready.\r\n");
+    dbg_printf("Commands:\r\n");
+    dbg_printf(" a = Set FFC mode Auto\r\n");
+    dbg_printf(" G = Get FFC mode\r\n");
+    dbg_printf("\r\n");
+    dbg_printf("LUT hotkeys:\r\n");
+    dbg_printf(" w = White Hot     b = Black Hot\r\n");
+    dbg_printf(" f = Fusion        r = Rainbow\r\n");
+    dbg_printf(" g = Globow        i = Ironbow1     k = Ironbow2\r\n");
+    dbg_printf(" s = Sepia         1 = Color1       2 = Color2\r\n");
+    dbg_printf(" x = Ice&Fire      n = Rain         c = Custom1\r\n");
+    dbg_printf(" l = Get current LUT\r\n");
+}
+
 void CamControl_Task(void)
 {
     uint8_t ch;
@@ -185,15 +355,81 @@ void CamControl_Task(void)
         Tau_ReadAndPrintReply();
         break;
 
-    case 'g':
     case 'G':
         dbg_printf("\r\n[CMD] Get FFC mode\r\n");
         Tau_SendGetFfcMode();
         Tau_ReadAndPrintReply();
         break;
 
+    case 'w':
+    case 'W':
+        Tau_SetLUT_WhiteHot();
+        break;
+
+    case 'b':
+    case 'B':
+        Tau_SetLUT_BlackHot();
+        break;
+
+    case 'f':
+    case 'F':
+        Tau_SetLUT_Fusion();
+        break;
+
+    case 'r':
+    case 'R':
+        Tau_SetLUT_Rainbow();
+        break;
+
+    case 'g':
+        Tau_SetLUT_Globow();
+        break;
+
+    case 'i':
+    case 'I':
+        Tau_SetLUT_Ironbow1();
+        break;
+
+    case 'k':
+    case 'K':
+        Tau_SetLUT_Ironbow2();
+        break;
+
+    case 's':
+    case 'S':
+        Tau_SetLUT_Sepia();
+        break;
+
+    case '1':
+        Tau_SetLUT_Color1();
+        break;
+
+    case '2':
+        Tau_SetLUT_Color2();
+        break;
+
+    case 'x':
+    case 'X':
+        Tau_SetLUT_IceFire();
+        break;
+
+    case 'n':
+    case 'N':
+        Tau_SetLUT_Rain();
+        break;
+
+    case 'c':
+    case 'C':
+        Tau_SetLUT_Custom1();
+        break;
+
+    case 'l':
+    case 'L':
+        Tau_GetVideoLUT();
+        break;
+
     default:
-        dbg_printf("\r\nCommands: 'a' = set FFC Auto, 'g' = get FFC mode\r\n");
+        Tau_PrintHelp();
         break;
     }
 }

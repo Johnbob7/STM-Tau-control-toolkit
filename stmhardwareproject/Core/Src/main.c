@@ -96,7 +96,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   CamControl_Init(&huart1, &huart2);
-  dbg_printf("Tau console ready. Press 'a' or 'g'.\r\n");
 
   /* USER CODE END 2 */
 
